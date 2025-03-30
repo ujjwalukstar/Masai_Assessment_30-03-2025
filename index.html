@@ -1,61 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Sharing Web Application</title>
-
-    <style>
-        .container ul li{
-            flex-direction: column;
-           list-style-type: none;
-           font-weight: 300;
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Sharing App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background: linear-gradient(to right, #f27121, #e94057);
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+    nav a {
+      margin: 0 15px;
+      color: white;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    section {
+      margin: 20px;
+      padding: 10px;
+    }
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .form-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-container input, 
+    .form-container textarea, 
+    .form-container select, 
+    .form-container button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #f27121;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e94057;
+    }
+    .card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px;
+      background-color: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-    <header class="main_heading">
-        <div>
-            <h2>Recipe Sharing Web Application</h2>
-        </div>
-        
-    </header>
-
-    <nav class="container">
-        <!-- <div class="item"> -->
-          <ul class="items" style="display: flex; justify-content: center;gap: 20px;font-size: 20px;">
-                <li>Home</li>
-                <li>Add recipe</li>
-                <li>View Recipe</li>
-            </ul>
-        <!-- </div> -->
+  <header>
+    <h1>Recipe Sharing App</h1>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#add-recipe">Add Recipe</a>
+      <a href="#view-recipes">View Recipes</a>
     </nav>
+  </header>
+  <main>
+    <section id="home">
+      <h2>Welcome!</h2>
+      <p>Discover and share amazing recipes.</p>
+    </section>
+    <section id="add-recipe">
+      <h2>Add a New Recipe</h2>
+      <div class="form-container">
+        <form id="form">
+          <label for="name">Recipe Name:</label>
+          <input type="text" id="name" required>
+          <label for="items">Ingredients:</label>
+          <textarea id="items" required></textarea>
+          <label for="type">Category:</label>
+          <select id="type">
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Dessert</option>
+            <option>Drinks</option>
+          </select>
+          <label for="steps">Preparation Steps:</label>
+          <textarea id="steps" required></textarea>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </section>
+    <section id="view-recipes">
+      <h2>View Recipes</h2>
+      <div id="container"></div>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById("form");
+    const container = document.getElementById("container");
 
-    <form>
+    const saveData = (recipes) => {
+      localStorage.setItem("recipes", JSON.stringify(recipes));
+    };
 
-        <div>
-            <label for="text">Recipe Name:</label>
-            <input type="text" name="text" />
-        </div>
+    const getData = () => {
+      return JSON.parse(localStorage.getItem("recipes")) || [];
+    };
 
-        <div>
-            <label for="textarea">Ingredients:</label>
-            <input type="textarea" name="textarea"  />
-        </div>
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const items = document.getElementById("items").value.split("\n");
+      const type = document.getElementById("type").value;
+      const steps = document.getElementById("steps").value;
 
-        <div>
-            <label for="dropdown">Category:</label>
-            <input type="dropdown" name="dropdown" />
-        </div>
+      const newRecipe = { name, items, type, steps };
+      const recipes = getData();
+      recipes.push(newRecipe);
+      saveData(recipes);
+      showRecipes(recipes);
+      form.reset();
+    });
 
-        <div>
-            <label for="textarea">Preparation Steps:</label>
-            <input type="textarea" name="textarea"  />
-        </div>
-        
-        <button>Submit</button>
-    </form>
-    
+    const showRecipes = (recipes) => {
+      container.innerHTML = "";
+      recipes.forEach((recipe) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${recipe.name}</h3>
+          <p><strong>Category:</strong> ${recipe.type}</p>
+          <table>
+            <thead>
+              <tr><th>Ingredient</th></tr>
+            </thead>
+            <tbody>
+              ${recipe.items.map((item) => `<tr><td>${item}</td></tr>`).join("")}
+            </tbody>
+          </table>
+          <p>${recipe.steps}</p>
+        `;
+        container.appendChild(card);
+      });
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const recipes = getData();
+      showRecipes(recipes);
+    });
+  </script>
 </body>
 </html>
